@@ -1,7 +1,3 @@
-/** 
-* @version 2.1.11
-* @license MIT
-*/
 (function (ng, undefined){
     'use strict';
 
@@ -155,13 +151,28 @@ ng.module('smart-table').controller('stTableController', [
       var predicateObject = tableState.search.predicateObject || {};
       var prop = predicate ? predicate : '$';
 
+	  if (input) {
+		var predicateTest = predicate;
+		if (!angular.isString(input)) {
+			if (input.distinct) {
+				predicateTest = predicateTest + '.distinct' + input.distinct;
+			} else {
+				predicateTest = predicateTest + '.distinct';
+			}
+		} else {
+			predicateTest = predicateTest + '.' + input;
+		}
+		if (!_.has(predicateObject, predicateTest)) {
+			tableState.pagination.start = 0;
+		}
+	  } 
+
       $parse(prop).assign(predicateObject, input);
       // to avoid to filter out null value
       if (!input) {
         deepDelete(predicateObject, prop);
       }
       tableState.search.predicateObject = predicateObject;
-      tableState.pagination.start = 0;
       return this.pipe();
     };
 
